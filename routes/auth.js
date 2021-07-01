@@ -1,5 +1,6 @@
 const express = require('express')
 const jwt = require('jsonwebtoken');
+
 const { addToken, findToken, logoutUser } = require('../controllers/tokenController');
 const { addUser, loginUser } = require('../controllers/userController');
 
@@ -54,12 +55,12 @@ router.post('/token', async(req, res) => {
     const { token } = req.body
     let validToken = await findToken(token)
     if (!token || !validToken.status) {
-        res.send(401).json({ message: 'Invalid or missing token!' })
+        res.status(401).json({ message: 'Invalid or missing token!' })
     } else {
         try {
             let decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET)
             let payload = {
-                username: decode.username
+                username: decoded.username
             }
             let newAccessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRE_TIME })
             res.status(200).json({ 'access_token': newAccessToken })

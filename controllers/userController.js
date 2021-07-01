@@ -51,7 +51,46 @@ const loginUser = async(username, password) => {
     }
 }
 
+const followUser = async(userToFollow, currentUser) => {
+    try {
+        let validUser = await User.findOne({ username: userToFollow })
+        if (!validUser) {
+            return { status: false, message: `This user doesn't exist! Try again!!` }
+        } else {
+            let user = await User.findOne({ username: currentUser })
+            validUser.followers.push(user._id)
+            await validUser.save()
+            user.following.push(validUser._id)
+            await user.save()
+            return { status: true, message: 'Successfully followed ' + userToFollow }
+        }
+    } catch (error) {
+        return { status: false, message: error.message }
+    }
+}
+
+const unfollowUser = async(userToFollow, currentUser) => {
+    try {
+        let validUser = await User.findOne({ username: userToFollow })
+        if (!validUser) {
+            return { status: false, message: `This user doesn't exist! Try again!!` }
+        } else {
+            let user = await User.findOne({ username: currentUser })
+
+            validUser.followers.pull(user._id)
+            await validUser.save()
+            user.following.pull(validUser._id)
+            await user.save()
+            return { status: true, message: 'Successfully unfollowed ' + userToFollow }
+        }
+    } catch (error) {
+        return { status: false, message: error.message }
+    }
+}
+
 module.exports = {
     addUser,
     loginUser,
+    followUser,
+    unfollowUser
 }

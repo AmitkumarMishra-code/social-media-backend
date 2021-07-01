@@ -20,11 +20,15 @@ const logoutUser = async(username) => {
 }
 
 const findToken = async(token) => {
-    let existingToken = Token.findOne({ token })
-    if (!existingToken) {
-        return { status: false, message: 'Invalid Refresh Token' }
-    } else {
-        return { status: true, message: 'Valid User' }
+    try {
+        let existingToken = await Token.findOne({ token })
+        if (!existingToken) {
+            return { status: false, message: 'Invalid Refresh Token' }
+        } else {
+            return { status: true, message: 'Valid User' }
+        }
+    } catch (error) {
+        return { status: false, message: error.message }
     }
 }
 
