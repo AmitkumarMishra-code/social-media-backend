@@ -27,11 +27,11 @@ router.post('/login', async(req, res) => {
         let response = await loginUser(username, password)
         if (response.status) {
             let payload = {
-                email
+                username
             }
             let token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRE_TIME })
             let refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRE_TIME })
-            await addToken(refreshToken, email)
+            await addToken(refreshToken, username)
             res.status(200).json({ access_Token: token, refresh_Token: refreshToken })
         } else {
             res.status(400).send(response.message)
@@ -43,7 +43,7 @@ router.post('/logout', async(req, res) => {
     let token = req.headers['authorization'].split(' ')[1]
     try {
         let decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
-        await logoutUser(decoded.email)
+        await logoutUser(decoded.username)
         res.status(200).json({ message: 'Logged out successfully' })
     } catch (error) {
         res.status(400).json({ message: error.message })
@@ -59,7 +59,7 @@ router.post('/token', async(req, res) => {
         try {
             let decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET)
             let payload = {
-                email: decode.email
+                username: decode.username
             }
             let newAccessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRE_TIME })
             res.status(200).json({ 'access_token': newAccessToken })
