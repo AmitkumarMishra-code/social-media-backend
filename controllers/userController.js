@@ -88,9 +88,29 @@ const unfollowUser = async(userToFollow, currentUser) => {
     }
 }
 
+const blockUser = async(userToBlock, currentUser) => {
+    try {
+        let validUser = await User.findOne({ username: userToBlock })
+        if (!validUser) {
+            return { status: false, message: `This user doesn't exist! Try again!!` }
+        } else {
+            let user = await User.findOne({ username: currentUser })
+
+            validUser.following.pull(user._id)
+            await validUser.save()
+            user.followers.pull(validUser._id)
+            await user.save()
+            return { status: true, message: 'Successfully blocked ' + userToBlock }
+        }
+    } catch (error) {
+        return { status: false, message: error.message }
+    }
+}
+
 module.exports = {
     addUser,
     loginUser,
     followUser,
-    unfollowUser
+    unfollowUser,
+    blockUser
 }
